@@ -6,25 +6,23 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSwaggerGen();
-        
-        services.AddSingleton<IRepository, Repository>();
-        
         services.AddControllers();
+        services.AddSwaggerGen();
+
+        services.AddSingleton<IRepository, Repository>();
     }
-    
+
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-            });
+            app
+                .UseSwagger()
+                .UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); });
         }
-        
-        app.UseRouting(); 
+
+        app.UseRouting();
+
         app.UseEndpoints(endpoints => endpoints.MapControllers());
     }
 }

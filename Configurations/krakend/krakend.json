@@ -1,0 +1,197 @@
+{
+  "$schema": "https://www.krakend.io/schema/v3.json",
+  "version": 3,
+  "name": "KrakenD DeZon Enterprise API Gateway",
+  "port": 8080,
+  "host": [
+    "http://localhost:8080"
+  ],
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "disable_rest": true,
+  "endpoints": [
+    {
+      "@comment": "Feature: DeZon.Users",
+      "endpoint": "api/users",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "encoding": "no-op",
+      "input_query_strings": [
+        "*"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://dezon-users-api:80"
+          ],
+          "method": "POST",
+          "output_encoding": "no-op",
+          "encoding": "no-op",
+          "url_pattern": "api/users"
+        }
+      ],
+	  "extra_config": {
+		  "auth/validator": {
+			"alg": "RS256",
+			"jwk_url": "http://keycloak:8080/realms/dezon/protocol/openid-connect/certs",
+			"disable_jwk_security": true
+		  }
+	  }
+    },
+    {
+      "@comment": "Feature: DeZon.Users list",
+      "endpoint": "api/users",
+      "output_encoding": "no-op",
+      "encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://dezon-users-api:80"
+          ],
+          "output_encoding": "no-op",
+          "encoding": "no-op",
+          "url_pattern": "api/users"
+        }
+      ]
+    },
+    {
+      "@comment": "Feature: DeZon.Orders",
+      "endpoint": "api/orders",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "encoding": "no-op",
+      "input_query_strings": [
+        "*"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://dezon-orders-api:80"
+          ],
+          "method": "POST",
+          "output_encoding": "no-op",
+          "encoding": "no-op",
+          "url_pattern": "api/orders"
+        }
+      ]
+    },
+    {
+      "@comment": "Feature: DeZon.Orders",
+      "endpoint": "api/orders",
+      "output_encoding": "no-op",
+      "encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://dezon-orders-api:80"
+          ],
+          "output_encoding": "no-op",
+          "encoding": "no-op",
+          "url_pattern": "api/orders"
+        }
+      ]
+    },
+	{
+      "@comment": "Feature: Get roles",
+      "endpoint": "/roles",
+	  "output_encoding": "no-op",
+	  "input_headers": ["*"],
+      "encoding": "no-op",
+      "backend": [
+        {
+          "host": ["http://dezon-users-api:80"],
+		  "output_encoding": "no-op",
+		  "encoding": "no-op",
+          "url_pattern": "/api/roles"
+        }
+      ],
+	  "extra_config": {
+		  "auth/validator": {
+			"alg": "RS256",
+			"jwk_url": "http://keycloak:8080/realms/dezon/protocol/openid-connect/certs",
+			"disable_jwk_security": true
+		  }
+	  }
+    },
+    {
+      "@comment": "Feature: Current services",
+      "endpoint": "/services",
+      "output_encoding": "json",
+      "encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://dezon-users-api:80"
+          ],
+          "is_collection": true,
+          "mapping": {
+            "collection": "users"
+          },
+          "url_pattern": "api/users"
+        },
+        {
+          "host": [
+            "http://dezon-orders-api:80"
+          ],
+          "is_collection": true,
+          "mapping": {
+            "collection": "orders"
+          },
+          "url_pattern": "api/orders"
+        }
+      ]
+    }
+  ],
+  "sequential_start": true,
+  "extra_config": {
+    "telemetry/metrics": {
+      "collection_time": "30s",
+      "listen_address": "localhost:8090"
+    },
+    "telemetry/influx": {
+      "address": "http://influxdb:8086",
+      "ttl": "25s",
+      "buffer_size": 100,
+      "username": "krakend-dev",
+      "password": "pas5w0rd"
+    },
+    "telemetry/opencensus": {
+      "sample_rate": 100,
+      "reporting_period": 0,
+      "enabled_layers": {
+        "backend": true,
+        "router": true
+      },
+      "exporters": {
+        "prometheus": {
+          "port": 9091,
+          "namespace": "krakend",
+          "tag_host": false,
+          "tag_path": true,
+          "tag_method": true,
+          "tag_statuscode": false
+        },
+        "jaeger": {
+          "endpoint": "http://jaeger:14268/api/traces",
+          "service_name": "krakend"
+        }
+      }
+    },
+	"security/cors": {
+      "allow_origins": ["*"],
+      "allow_methods": ["POST", "GET"],
+      "allow_headers": ["Origin", "Authorization", "Content-Type"],
+      "expose_headers": ["Content-Length"],
+      "max_age": "12h"
+    },
+    "auth/revoker": {
+      "N": 10000000,
+      "P": 0.0000001,
+      "hash_name": "optimal",
+      "TTL": 1500,
+      "port": 1234,
+      "token_keys": ["jti"]
+    }
+  }
+}
+  

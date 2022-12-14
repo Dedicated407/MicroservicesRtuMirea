@@ -23,7 +23,7 @@ public class UserController : ControllerBase
     }
     
     [HttpGet]
-    public IActionResult GetOrders()
+    public IActionResult GetUsers()
     {
         return Ok(_repository.GetAll());
     }

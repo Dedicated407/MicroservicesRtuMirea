@@ -13,11 +13,11 @@ public class Repository : IRepository
 
     public Guid Add(string name)
     {
-        var order = new User(name);
+        var user = new User(name);
 
-        _users.Add(order);
+        _users.Add(user);
 
-        return order.Id;
+        return user.Id;
     }
 
     public IEnumerable<User> GetAll()
