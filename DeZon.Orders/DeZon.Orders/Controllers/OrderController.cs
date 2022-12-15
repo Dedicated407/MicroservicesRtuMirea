@@ -18,15 +18,8 @@ public class OrderController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("graylog")]
-    public IActionResult TestGraylog()
-    {
-        _logger.LogInformation("Request from TestGraylog (api/orders/graylog).");
-        return Ok();
-    }
-    
     [HttpPost]
-    public async Task<IActionResult> Add([FromQuery] string name, CancellationToken cancellationToken)
+    public async Task<IActionResult> Add([FromBody] string name, CancellationToken cancellationToken)
     {
         var order = new Order(name);
         

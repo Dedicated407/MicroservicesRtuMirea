@@ -15,7 +15,7 @@ public class UserController : ControllerBase
     }
     
     [HttpPost]
-    public IActionResult Add([FromQuery] string name)
+    public IActionResult Add([FromBody] string name)
     {
         var result = _repository.Add(name);
 
